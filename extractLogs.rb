@@ -2,8 +2,10 @@
 
 require "azure"
 require "./config.rb"
+require "./tools.rb"
 
 config = AzureConfig.new("config.yaml")
+tools = Tools.new
 
 partitionKey = config.getKey('events.lastPK')
 tableDate = config.getKey('events.lastReadTable')
@@ -25,20 +27,23 @@ Azure.configure do |aConfig|
   aConfig.storage_access_key = config.getKey('azure.storage_access_key')
 end
 
-lastReadPK = convertToMinutes(partitionKey)
-lastPkToRead = convertToMinutes(currentTime) - cutOffTime
+lastReadPK = tools.convertToMinutes(partitionKey.to_s)
+lastPkToRead = tools.convertToMinutes(currentTime.to_s) - cutOffTime
+
+#puts "lastReadPK: #{partitionKey} # #{lastReadPK}"
+#puts "lastPkToRead: #{currentTime} - #{cutOffTime} # #{lastPkToRead}"
 
 # Loop from last read PK + 1 to limitPK
 #   Query Azure table for events
 #   push events to logstash
 #
 
-def convertToMinutes(partitionKey)
-  return (partitionKey[0..1].to_i * 60) + partitionKey[2..3].to_i
+readPk = lastReadPK + 1
+
+(lastReadPK+1..lastPkToRead).each do |pk|
+  query = { :filter => "PartitionKey eq #{pk.to_s}" }
+  puts query
+  readPk = pk.to_s
 end
 
-def convertToTime(pk)
-  minutes = pk % 60
-  hours = (pk - minutes) / 60
-  time = hours.to_s.rjust(2, '0') + minutes.to_s.rjust(2, '0')
-end
+config.setKey('events.lastPK', tools.convertToTime(readPk.to_i))
