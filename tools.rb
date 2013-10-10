@@ -1,3 +1,5 @@
+require 'date'
+
 class Tools
   def initialize
 
@@ -12,5 +14,11 @@ class Tools
     mins = minutes % 60
     hours = (minutes - mins) / 60
     return hours.to_s.rjust(2, '0') + mins.to_s.rjust(2, '0')
+  end
+
+  def addDay(stringDate)
+    date = Date.parse(stringDate)
+    addedDate = date + 1
+    return addedDate.strftime('%Y%m%d')
   end
 end
