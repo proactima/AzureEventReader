@@ -8,9 +8,9 @@ class Tools
     return minutes.to_i
   end
 
-  def convertToTime(pk)
-    minutes = pk % 60
-    hours = (pk - minutes) / 60
-    return hours.to_s.rjust(2, '0') + minutes.to_s.rjust(2, '0').to_i
+  def convertToTime(minutes)
+    mins = minutes % 60
+    hours = (minutes - mins) / 60
+    return hours.to_s.rjust(2, '0') + mins.to_s.rjust(2, '0')
   end
 end
